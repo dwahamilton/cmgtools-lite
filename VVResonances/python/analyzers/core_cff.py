@@ -6,17 +6,16 @@ from CMGTools.VVResonances.analyzers.LeptonIDOverloader import *
 from CMGTools.VVResonances.analyzers.VVBuilder import *
 from CMGTools.VVResonances.analyzers.VTauBuilder import *
 from CMGTools.VVResonances.analyzers.Skimmer import *
-from CMGTools.VVResonances.analyzers.HBHENoiseFix import *
+from CMGTools.VVResonances.analyzers.TopMergingAnalyzer import *
+
 import os
-
-
 
 
 
 # Pick individual events (normally not in the path)
 eventSelector = cfg.Analyzer(
     EventSelector,name="EventSelector",
-    toSelect = []  # here put the event numbers (actual event numbers from CMSSW)
+    toSelect = [2]  # here put the event numbers (actual event numbers from CMSSW)
     )
 
 skimAnalyzer = cfg.Analyzer(
@@ -43,11 +42,6 @@ triggerFlagsAna = cfg.Analyzer(
     }
     )
 
-
-#Fix HBHE
-hbheFix = cfg.Analyzer(
-HBHENoiseFix,name ='hbheNoiseFix'
-)
 
 
 # Create flags for MET filter bits
@@ -127,8 +121,7 @@ lepAna = cfg.Analyzer(
     rhoMuon= 'fixedGridRhoFastjetAll',
     rhoElectron = 'fixedGridRhoFastjetAll',
     # energy scale corrections and ghost muon suppression (off by default)
-    doMuScleFitCorrections=False, # "rereco"
-    doRochesterCorrections=False,
+    doMuonScaleCorrections=False,
     doElectronScaleCorrections=False, # "embedded" in 5.18 for regression
     doSegmentBasedMuonCleaning=False,
     # inclusive very loose muon selection
@@ -211,7 +204,7 @@ metAna = cfg.Analyzer(
 
 jetAna = cfg.Analyzer(
     JetAnalyzer, name='jetAnalyzer',
-    jetCol = 'slimmedJets',
+    jetCol = 'slimmedJetsPuppi',
     copyJetsByValue = False,      #Whether or not to copy the input jets or to work with references (should be 'True' if JetAnalyzer is run more than once)
     genJetCol = 'slimmedGenJets',
     rho = ('fixedGridRhoFastjetAll','',''),
@@ -219,19 +212,19 @@ jetAna = cfg.Analyzer(
     jetEta = 4.7,
     jetEtaCentral = 2.4,
     jetLepDR = 0.4,
-    jetLepArbitration = (lambda jet,lepton : lepton), # you can decide which to keep in case of overlaps; e.g. if the jet is b-tagged you might want to keep the jet
     cleanSelectedLeptons = False, #Whether to clean 'selectedLeptons' after disambiguation. Treat with care (= 'False') if running Jetanalyzer more than once
     minLepPt = 10,
     relaxJetId = False,  
     doPuId = False, # Not commissioned in 7.0.X
     recalibrateJets = True, #'MC', # True, False, 'MC', 'Data'
-    applyL2L3Residual = True, # Switch to 'Data' when they will become available for Data
-    recalibrationType = "AK4PFchs",
-    mcGT     = "Summer15_25nsV6_MC",
-    dataGT   = "Summer15_25nsV6_DATA",
+    applyL2L3Residual = 'Data', # Switch to 'Data' when they will become available for Data
+    recalibrationType = "AK4PFPuppi",
+    mcGT     = "Fall15_25nsV2_MC",
+    dataGT   = "Fall15_25nsV2_DATA",
     jecPath = "${CMSSW_BASE}/src/CMGTools/RootTools/data/jec/",
     shiftJEC = 0, # set to +1 or -1 to apply +/-1 sigma shift to the nominal jet energies
-    addJECShifts = False, # if true, add  "corr", "corrJECUp", and "corrJECDown" for each jet (requires uncertainties to be available!)
+    addJECShifts = True, # if true, add  "corr", "corrJECUp", and "corrJECDown" for each jet (requires uncertainties to be available!)
+    addJERShifts = True, # if true, add  "corr", "corrJECUp", and "corrJECDown" for each jet (requires uncertainties to be available!)
     smearJets = False,
     shiftJER = 0, # set to +1 or -1 to get +/-1 sigma shifts  
     alwaysCleanPhotons = False,
@@ -258,19 +251,19 @@ jetAnaAK8 = cfg.Analyzer(
     jetEta = 2.4,
     jetEtaCentral = 2.4,
     jetLepDR = 0.4,
-    jetLepArbitration = (lambda jet,lepton : lepton), # you can decide which to keep in case of overlaps; e.g. if the jet is b-tagged you might want to keep the jet
     cleanSelectedLeptons = False, #Whether to clean 'selectedLeptons' after disambiguation. Treat with care (= 'False') if running Jetanalyzer more than once
     minLepPt = 10,
     relaxJetId = False,  
     doPuId = False, # Not commissioned in 7.0.X
     recalibrateJets = True, #'MC', # True, False, 'MC', 'Data'
-    applyL2L3Residual = True, # Switch to 'Data' when they will become available for Data
-    recalibrationType = "AK8PFchs",
-    mcGT     = "Summer15_25nsV6_MC",
-    dataGT   = "Summer15_25nsV6_DATA",
+    applyL2L3Residual = 'Data', # Switch to 'Data' when they will become available for Data
+    recalibrationType = "AK8PFPuppi",
+    mcGT     = "76X_mcRun2_asymptotic_v12",
+    dataGT   = "76X_dataRun2_v15_Run2015D_25ns",
     jecPath = "${CMSSW_BASE}/src/CMGTools/RootTools/data/jec/",
     shiftJEC = 0, # set to +1 or -1 to apply +/-1 sigma shift to the nominal jet energies
-    addJECShifts = False, # if true, add  "corr", "corrJECUp", and "corrJECDown" for each jet (requires uncertainties to be available!)
+    addJECShifts = True, # if true, add  "corr", "corrJECUp", and "corrJECDown" for each jet (requires uncertainties to be available!) 
+    addJERShifts = True,
     smearJets = False,
     shiftJER = 0, # set to +1 or -1 to get +/-1 sigma shifts  
     alwaysCleanPhotons = False,
@@ -289,12 +282,18 @@ jetAnaAK8 = cfg.Analyzer(
 
 
 
+mergedTruthAna = cfg.Analyzer(TopMergingAnalyzer,name='mergeTruthAna')
+
 
 
 vvAna = cfg.Analyzer(
     VVBuilder,name='vvAna',
     suffix = '',
-    bDiscriminator = "pfCombinedInclusiveSecondaryVertexV2BJetTags"
+    doPUPPI=True,
+    bDiscriminator = "pfCombinedInclusiveSecondaryVertexV2BJetTags",
+#    boostedBdiscriminator = "pfBoostedDoubleSecondaryVertexAK8BJetTags",
+    cDiscriminatorL = "pfCombinedCvsLJetTags",
+    cDiscriminatorB = "pfCombinedCvsBJetTags"
 )
 
 
@@ -309,11 +308,30 @@ vTauAna = cfg.Analyzer(
 
 
 
+def doPruning():
+    print "Switching to prunning" 
+    jetAna.jetCol = 'slimmedJets'
+    jetAna.mcGT     = "76X_mcRun2_asymptotic_v12"
+    jetAna.dataGT   = "76X_dataRun2_v15_Run2015D_25ns"
+    jetAna.recalibrationType = "AK4PFchs"
+
+#    jetAnaAK8.mcGT     = "Fall15_25nsV2_MC"
+
+    jetAnaAK8.mcGT     = "76X_mcRun2_asymptotic_v12"
+    jetAnaAK8.dataGT   = "76X_dataRun2_v15_Run2015D_25ns"
+    jetAnaAK8.recalibrationType = "AK8PFchs"
+
+    vvAna.doPUPPI=False
+
+    
+
+
+
 
     
 
 coreSequence = [
-   #eventSelector,
+#    eventSelector,
     skimAnalyzer,
     jsonAna,
     triggerAna,
@@ -329,6 +347,6 @@ coreSequence = [
 #    packedAna,
 #    multiStateAna,
     eventFlagsAna,
-    hbheFix,
-    triggerFlagsAna    
+    triggerFlagsAna,
+    mergedTruthAna
 ]

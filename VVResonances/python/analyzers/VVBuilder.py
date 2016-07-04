@@ -55,6 +55,7 @@ class VVBuilder(Analyzer):
         #For the pruned sub jets +PUPPIcalculate the correction
         #without L1
         corrNoL1 = jet.corr/jet.CorrFactor_L1
+#        print jet.CorrFactor_L1L2L3Res
 
         #if PUPPI reset the jet four vector
         if self.doPUPPI:
@@ -69,11 +70,12 @@ class VVBuilder(Analyzer):
         #Get pruned lorentzVector and subjets
         interface.prune(True,0,0.1,0.5)
 
-        
+
+        jet.substructure.prunedJetUC = self.copyLV(interface.get(False))[0]       
         jet.substructure.prunedJet = self.copyLV(interface.get(False))[0]*corrNoL1
         jet.substructure.prunedJetUp = 1.05*jet.substructure.prunedJet.mass()
         jet.substructure.prunedJetDown = 0.95*jet.substructure.prunedJet.mass()
-        jet.substructure.prunedJetSmear = jet.substructure.prunedJet.mass()*self.smearing.Gaus(1.0,1.1)
+        jet.substructure.prunedJetSmear = jet.substructure.prunedJet.mass()*self.smearing.Gaus(1.0,0.1)
 
 
         interface.makeSubJets(False,0,2)

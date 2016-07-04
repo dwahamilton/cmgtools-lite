@@ -54,8 +54,16 @@ from CMGTools.RootTools.fwlite.Config import printComps
 from CMGTools.RootTools.RootTools import *
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
+
+
+
 #Load all common analyzers
 from CMGTools.VVResonances.analyzers.core_cff import * 
+
+#PUPPI by default 
+doPruning()
+
+
 
 #-------- SAMPLES AND TRIGGERS -----------
 from CMGTools.VVResonances.samples.loadSamples import *

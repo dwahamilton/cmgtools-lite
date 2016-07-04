@@ -11,8 +11,6 @@ from CMGTools.VVResonances.analyzers.TopMergingAnalyzer import *
 import os
 
 
-doPrunning=True
-
 
 # Pick individual events (normally not in the path)
 eventSelector = cfg.Analyzer(
@@ -310,7 +308,7 @@ vTauAna = cfg.Analyzer(
 
 
 
-if doPrunning:
+def doPruning():
     print "Switching to prunning" 
     jetAna.jetCol = 'slimmedJets'
     jetAna.mcGT     = "76X_mcRun2_asymptotic_v12"

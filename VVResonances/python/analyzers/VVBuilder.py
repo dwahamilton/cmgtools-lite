@@ -84,7 +84,6 @@ class VVBuilder(Analyzer):
         jet.subJetTags=[-1.0,-1.0]
         jet.subJetCTagL=[-1.0,-1.0]
         jet.subJetCTagB=[-1.0,-1.0]
-
         for i,s in enumerate(jet.substructure.prunedSubjets):
             for o in jet.subjets("SoftDrop"):
                 dr=deltaR(s.eta(),s.phi(),o.eta(),o.phi())

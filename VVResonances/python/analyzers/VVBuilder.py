@@ -71,10 +71,6 @@ class VVBuilder(Analyzer):
         interface.prune(True,0,0.1,0.5)
 
 
-<<<<<<< HEAD
-        jet.substructure.prunedJetUC = self.copyLV(interface.get(False))[0]       
-=======
->>>>>>> 0726be717d7295918c1eebe64d8754340b265d6a
         jet.substructure.prunedJet = self.copyLV(interface.get(False))[0]*corrNoL1
         jet.substructure.prunedJetUp = 1.05*jet.substructure.prunedJet.mass()
         jet.substructure.prunedJetDown = 0.95*jet.substructure.prunedJet.mass()

@@ -333,7 +333,7 @@ if doPrunning:
     
 
 coreSequence = [
-    eventSelector,
+#    eventSelector,
     skimAnalyzer,
     jsonAna,
     triggerAna,

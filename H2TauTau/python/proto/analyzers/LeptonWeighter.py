@@ -16,9 +16,6 @@ class LeptonWeighter(Analyzer):
         self.scaleFactors = {}
         for sf_name, sf_file in self.cfg_ana.scaleFactorFiles.items():
             self.scaleFactors[sf_name] = ScaleFactor(sf_file)
-        if hasattr(self.cfg_ana, 'otherScaleFactorFiles'):
-            for sf_name, sf_file in self.cfg_ana.otherScaleFactorFiles.items():
-                self.scaleFactors[sf_name] = ScaleFactor(sf_file)
 
     def beginLoop(self, setup):
         print self, self.__class__
@@ -50,8 +47,7 @@ class LeptonWeighter(Analyzer):
                 setattr(lep, 'eff_data_'+sf_name, sf.getEfficiencyData(pt, eta))
                 setattr(lep, 'eff_mc_'+sf_name, sf.getEfficiencyMC(pt, eta))
 
-                if sf_name in self.cfg_ana.scaleFactorFiles:
-                    lep.weight *= getattr(lep, 'weight_'+sf_name)
+                lep.weight *= getattr(lep, 'weight_'+sf_name)
 
         if not hasattr(event, "triggerWeight"):
             event.triggerWeight = 1.0

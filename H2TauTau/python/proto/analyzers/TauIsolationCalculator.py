@@ -1,6 +1,7 @@
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 
-from PhysicsTools.HeppyCore.utils.deltar import deltaR
+from PhysicsTools.HeppyCore.utils.deltar import deltaPhi, deltaR
 
 class TauIsolationCalculator(Analyzer):
 
@@ -50,30 +51,4 @@ class TauIsolationCalculator(Analyzer):
             tau.puppi_iso03_pt = sum(c_p.pt()*c_p.puppiWeight() for c_p in puppi_iso_cands_03)
             # Add puppi isolation
 
-            self.tauIsoBreakdown(tau)
-            
-            tau.trigger_iso = (tau.chargedPtSumIso + tau.gammaPtSumIso) < max(2., 0.06 * tau.pt() * (tau.pt() > 40.) ) 
-            
-            #import pdb ; pdb.set_trace()
-            
         return True
-
-    @staticmethod
-    def tauIsoBreakdown(tau):
-
-        variables = {
-            'ptSumIso'                : tau.isolationCands()           ,
-            'chargedPtSumIso'         : tau.isolationChargedHadrCands(),
-            'gammaPtSumIso'           : tau.isolationGammaCands()      ,
-            'neutralPtSumIso'         : tau.isolationNeutrHadrCands()  ,
-            'ptSumSignal'             : tau.signalCands()              ,
-            'chargedCandsPtSumSignal' : tau.signalChargedHadrCands()   ,
-            'gammaCandsPtSumSignal'   : tau.signalGammaCands()         ,
-            'neutralCandsPtSumSignal' : tau.signalNeutrHadrCands()     ,
-        }
-
-        for k, v in variables.items():
-            ptsum = 0.
-            for i in v:
-                ptsum += i.pt()
-            setattr(tau, k, ptsum)

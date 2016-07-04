@@ -60,9 +60,7 @@ for event in limit:
         data[event.mh]['+2sigma']=event.limit
 
 
-
-
-    print data[event.mh]
+print data
 
 
 band68=ROOT.TGraphAsymmErrors()
@@ -88,7 +86,6 @@ line_minus2.SetName("line_minus2")
 
 N=0
 for mass,info in data.iteritems():
-    print 'Setting mass',mass,info
     band68.SetPoint(N,mass,info['exp'])
     band95.SetPoint(N,mass,info['exp'])
     line_plus1.SetPoint(N,mass,info['+1sigma'])

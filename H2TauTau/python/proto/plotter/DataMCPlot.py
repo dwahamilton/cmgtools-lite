@@ -494,7 +494,7 @@ class DataMCPlot(object):
                 thePref = pref
         if thePref is None:
             print 'cannot find preference for hist', name
-            thePref = {'style': Style(), 'layer': 999, 'legend':name}
+            thePref = {'style': Style(), 'layer': 999}
         return thePref
 
     def _ApplyPrefs(self):

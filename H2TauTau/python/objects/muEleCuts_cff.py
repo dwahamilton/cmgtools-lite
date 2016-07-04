@@ -5,14 +5,14 @@ from CMGTools.H2TauTau.objects.muCuts_cff import getMuCuts
 # from CMGTools.H2TauTau.objects.eleSkimCuts_cff import * 
 # from CMGTools.H2TauTau.objects.tauSkimCuts_cff import * 
 
-muEleCuts = cms.PSet(
+tauEleCuts = cms.PSet(
     baseline = cms.PSet(
          #mass = cms.string('mass()>10'),
-         muLeg = getMuCuts('leg1','muEle').clone(),
-         eleLeg = getEleCuts('leg2', 'muEle').clone()
+         muLeg = getMuCuts('leg1','tauMu').clone(),
+         eleLeg = getEleCuts('leg2', 'tauEle').clone()
          ),
     )
 
 if __name__ == '__main__':
 
-    print muEleCuts
+    print tauEleCuts

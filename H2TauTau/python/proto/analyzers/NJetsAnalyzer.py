@@ -6,16 +6,20 @@ from PhysicsTools.HeppyCore.statistics.average import Average
 
 from CMGTools.RootTools.statistics.TreeNumpy import TreeNumpy
 
-from ROOT import TFile, TH1F, TLorentzVector
+from ROOT import TFile, TH1F
 
 class NJetsAnalyzer(Analyzer):
-    '''Saves the number of partons and gen HT from the LHEEventProduct 
-    information, and reweights the events if according information present
-    in the sample configuration.
+    # class NJetsAnalyzer( GenParticleAnalyzer ):
 
-    Note that unlike before, the number of partons is calculated directly
-    and not taken from the NUP variable inside the LHEEventProduct since the
-    latter doesn't account for off-shell Z/W bosons anymore.
+    '''saves the NUP variable from the LHEEventProduct information.
+
+    For the W+jets case:
+    NUP = 5 : 0jets
+    NUP = 6 : 1jet 
+    ...
+
+    In case of data, NUP = -1.
+    In case of other MCs, the value is saved.
     '''
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
@@ -36,12 +40,6 @@ class NJetsAnalyzer(Analyzer):
             for ninc, nexc in zip(self.ni, self.cfg_comp.nevents):
                 self.weighti.append(ninc / (ninc + nexc))
             self.applyWeight = True
-
-        self.applyWeightFunc = False
-
-        if hasattr(self.cfg_comp, 'weight_func'):
-            self.weight_func = self.cfg_comp.weight_func
-            self.applyWeightFunc = True
 
         self.hasMCProduct = True
 
@@ -66,7 +64,6 @@ class NJetsAnalyzer(Analyzer):
         event.NUP = -1
         event.genPartonHT = 0.
         event.NJetWeight = 1
-        event.geninvmass = -999.
 
         if not self.cfg_comp.isMC:
             return True
@@ -95,9 +92,7 @@ class NJetsAnalyzer(Analyzer):
 
         sumpt = 0.
         outgoing = []
-        mass = []
-
-
+       
         # print [(a, b) for a, b in zip(hep.ISTUP, hep.IDUP)]
 
         for status, pdg, moth, mom in zip(hep.ISTUP, hep.IDUP, hep.MOTHUP, hep.PUP):
@@ -106,15 +101,9 @@ class NJetsAnalyzer(Analyzer):
                 sumpt += math.sqrt(mom.x[0]**2 + mom.x[1]**2)
                 outgoing.append(pdg)
 
-            if status==1 and abs(pdg) in [11, 12, 13, 14, 15, 16]:
-                l = TLorentzVector(mom.x[0], mom.x[1], mom.x[2], mom.x[3])
-                mass.append(l)
-
         njets = len(outgoing)
+        event.NUP = hep.NUP
         event.NUP = njets
-        
-        if len(mass)==2:
-            event.geninvmass = (mass[0] + mass[1]).M()
 
         event.genPartonHT = sumpt
 
@@ -127,9 +116,6 @@ class NJetsAnalyzer(Analyzer):
 
             if self.cfg_ana.verbose:
                 print 'NUP, njets, weight', event.NUP, njets, event.NJetWeight
-
-        if self.applyWeightFunc:
-            event.NJetWeight = self.weight_func(njets, event.geninvmass)
 
         if self.cfg_ana.fillTree:
             self.tree.reset()

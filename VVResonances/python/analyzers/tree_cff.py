@@ -32,6 +32,8 @@ vvTreeProducer = cfg.Analyzer(
         NTupleVariable("rho",  lambda ev: ev.rho, float, help="kt6PFJets rho"),
         NTupleVariable("rhoCN",  lambda ev: ev.rhoCN, float, help="fixed grid rho central neutral"),
         NTupleVariable("nVert",  lambda ev: len(ev.goodVertices), int, help="Number of good vertices"), 
+        NTupleVariable("Flag_HBHENoiseFilterFix",  lambda ev: ev.HBHENoiseFilterFix, int, help="HBHEFixedFilter"), 
+        NTupleVariable("Flag_HBHENoiseIsoFilterFix",  lambda ev: ev.HBHENoiseIsoFilterFix, int, help="HBHEIsoFixedFilter"), 
      ],
      globalObjects =  {
             "met" : NTupleObject("met", metType, help="PF E_{T}^{miss}, after type 1 corrections"),
@@ -63,6 +65,8 @@ vTauTreeProducer = cfg.Analyzer(
         NTupleVariable("rho",  lambda ev: ev.rho, float, help="kt6PFJets rho"),
         NTupleVariable("rhoCN",  lambda ev: ev.rhoCN, float, help="fixed grid rho central neutral"),
         NTupleVariable("nVert",  lambda ev: len(ev.goodVertices), int, help="Number of good vertices"), 
+        NTupleVariable("Flag_HBHENoiseFilterFix",  lambda ev: ev.HBHENoiseFilterFix, int, help="HBHEFixedFilter"), 
+        NTupleVariable("Flag_HBHENoiseIsoFilterFix",  lambda ev: ev.HBHENoiseIsoFilterFix, int, help="HBHEIsoFixedFilter"), 
      ],
      globalObjects =  {
             "met" : NTupleObject("met", metType, help="PF E_{T}^{miss}, after type 1 corrections"),

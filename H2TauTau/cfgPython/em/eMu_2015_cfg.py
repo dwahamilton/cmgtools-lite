@@ -1,14 +1,13 @@
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.config import printComps
-from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
+
+from CMGTools.H2TauTau.proto.analyzers.LeptonIsolationCalculator import LeptonIsolationCalculator
 
 # Tau-tau analyzers
 from CMGTools.H2TauTau.proto.analyzers.MuEleAnalyzer             import MuEleAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerMuEle import H2TauTauTreeProducerMuEle
-from CMGTools.H2TauTau.proto.analyzers.DiLeptonWeighter            import DiLeptonWeighter
+from CMGTools.H2TauTau.proto.analyzers.LeptonWeighter            import LeptonWeighter
 from CMGTools.H2TauTau.proto.analyzers.SVfitProducer              import SVfitProducer
-from CMGTools.H2TauTau.proto.analyzers.LeptonIsolationCalculator import LeptonIsolationCalculator
-from CMGTools.H2TauTau.proto.analyzers.FileCleaner import FileCleaner
 
 # common configuration and sequence
 from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, genAna, dyJetsFakeAna, puFileData, puFileMC, eventSelector
@@ -20,11 +19,9 @@ from CMGTools.H2TauTau.proto.samples.fall15.htt_common import backgrounds_mu, sm
 
 
 # local switches
-syncntuple   = True
+syncntuple   = False
 computeSVfit = False
-production   = False  # production = True run on batch, production = False run locally
-cmssw = True
-data = False
+production   = True  # production = True run on batch, production = False run locally
 
 muonIsoCalc = cfg.Analyzer(
     LeptonIsolationCalculator,
@@ -63,23 +60,29 @@ muEleAna = cfg.Analyzer(
   verbose      = False          ,
   )
 
-leptonWeighter = cfg.Analyzer(
-    DiLeptonWeighter,
-    name='DiLeptonWeighter',
-    scaleFactorFiles={
-        'trigger_mu_low':'$CMSSW_BASE/src/CMGTools/H2TauTau/data/Muon_Mu8_eff.root',
-        'trigger_mu_high':'$CMSSW_BASE/src/CMGTools/H2TauTau/data/Muon_Mu17_eff.root',
-        'trigger_e_low':'$CMSSW_BASE/src/CMGTools/H2TauTau/data/Electron_Ele12_eff.root',
-        'trigger_e_high':'$CMSSW_BASE/src/CMGTools/H2TauTau/data/Electron_Ele17_eff.root',
-        'idiso_mu':'$CMSSW_BASE/src/CMGTools/H2TauTau/data/Muon_IdIso0p15_eff.root',
-        'idiso_e':'$CMSSW_BASE/src/CMGTools/H2TauTau/data/Electron_IdIso0p15_eff.root',
-    },
-    lepton_e='leg1',
-    lepton_mu='leg2',
-    disable=False
-)
+muonWeighter = cfg.Analyzer(
+  LeptonWeighter                  ,
+  name        ='LeptonWeighter_mu',
+  effWeight   = None              ,
+  effWeightMC = None              ,
+  lepton      = 'leg1'            ,
+  verbose     = False             ,
+  disable     = True              ,
+  idWeight    = None              ,
+  isoWeight   = None
+  )
 
-
+eleWeighter = cfg.Analyzer(
+  LeptonWeighter                   ,
+  name        ='LeptonWeighter_ele',
+  effWeight   = None               ,
+  effWeightMC = None               ,
+  lepton      = 'leg2'             ,
+  verbose     = False              ,
+  disable     = True               ,
+  idWeight    = None               ,
+  isoWeight   = None
+  )
 
 treeProducer = cfg.Analyzer(
   H2TauTauTreeProducerMuEle         ,
@@ -104,17 +107,8 @@ svfitProducer = cfg.Analyzer(
   l2type      = 'ele'
   )
 
-fileCleaner = cfg.Analyzer(
-    FileCleaner,
-    name='FileCleaner'
-)
-
-
-if cmssw:
-    muEleAna.from_single_objects = False
 
 samples = backgrounds_mu + sm_signals + mssm_signals + sync_list
-#samples = backgrounds_mu + sm_signals
 
 split_factor = 1e5
 
@@ -144,8 +138,8 @@ for mc in samples:
 ###             SET COMPONENTS BY HAND          ###
 ###################################################
 #selectedComponents = samples
-selectedComponents = samples + data_list
-#selectedComponents = data_list
+#selectedComponents = samples + data_list
+selectedComponents = data_list
 #selectedComponents = samples
 
 
@@ -154,7 +148,8 @@ selectedComponents = samples + data_list
 ###################################################
 sequence = commonSequence
 sequence.insert(sequence.index(genAna), muEleAna)
-sequence.append(leptonWeighter)
+sequence.append(muonWeighter)
+sequence.append(eleWeighter)
 if computeSVfit:
     sequence.append(svfitProducer)
 sequence.append(treeProducer)
@@ -166,21 +161,11 @@ sequence.insert(sequence.index(treeProducer), electronIsoCalc)
 treeProducer.addIsoInfo = True
 
 
-if not syncntuple:
-    module = [s for s in sequence if s.name == 'H2TauTauSyncTreeProducerTauMu'][0]
-    sequence.remove(module)
-
-if not cmssw:
-    module = [s for s in sequence if s.name == 'MCWeighter'][0]
-    sequence.remove(module)
-
-
-
 ###################################################
 ###             CHERRY PICK EVENTS              ###
 ###################################################
-#eventSelector.toSelect = [370324]
-#sequence.insert(0, eventSelector)
+# eventSelector.toSelect = [133381]
+# sequence.insert(0, eventSelector)
 
 ###################################################
 ###            SET BATCH OR LOCAL               ###
@@ -189,16 +174,9 @@ if not production:
   cache                = True
   comp = sync_list[0]
   selectedComponents   = [comp]
-  comp.splitFactor     = 6
+  comp.splitFactor     = 8
   comp.fineSplitFactor = 1
 #  comp.files           = comp.files[:1]
-
-preprocessor = None
-if cmssw:
-    fname = "$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_emu_data_cfg.py" if data else "$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_emu_cfg.py"
-
-    sequence.append(fileCleaner)
-    preprocessor = CmsswPreprocessor(fname, addOrigAsSecondary=False)
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script
@@ -206,7 +184,6 @@ from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 config = cfg.Config( components   = selectedComponents,
                      sequence     = sequence          ,
                      services     = []                ,
-                     preprocessor=preprocessor,
                      events_class = Events
                      )
 

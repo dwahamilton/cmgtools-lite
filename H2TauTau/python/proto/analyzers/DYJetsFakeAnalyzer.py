@@ -26,7 +26,7 @@ class DYJetsFakeAnalyzer(Analyzer):
         self.mchandles['genInfo'] = AutoHandle(('generator','',''), 'GenEventInfoProduct' )
         self.mchandles['genJets'] = AutoHandle('slimmedGenJets', 'std::vector<reco::GenJet>')
 
-        self.handles['jets'] = AutoHandle(self.cfg_ana.jetCol, 'std::vector<pat::Jet>')
+        self.handles['jets'] = AutoHandle('slimmedJets', 'std::vector<pat::Jet>')
 
     def process(self, event):
 
@@ -47,6 +47,8 @@ class DYJetsFakeAnalyzer(Analyzer):
         event.genmet_px = -99.
         event.genmet_py = -99.
         event.genmet_phi = -99.
+        event.geninfo_has_z = False
+        event.geninfo_has_w = False
         event.weight_gen = 1.
 
         if self.cfg_comp.isData:
@@ -135,8 +137,7 @@ class DYJetsFakeAnalyzer(Analyzer):
 
         return True
 
-    @staticmethod
-    def attachGenStatusFlag(lepton):        
+    def attachGenStatusFlag(self, lepton):        
         flag = 6
 
         gen_p = lepton.genp if hasattr(lepton, 'genp') else None
@@ -209,11 +210,6 @@ class DYJetsFakeAnalyzer(Analyzer):
         #             leg.genp = leg.genJet()
         #             leg.genp.setPdgId(-15 * leg.genp.charge())
         #             leg.isTauHad = True
-        
-        # RM: needed to append genTauJets to the events,
-        #     when genMatch is used as a static method
-        if not hasattr(event, 'genTauJets'):
-            DYJetsFakeAnalyzer.getGenTauJets(event)
 
         l1match, dR2best = bestMatch(leg, event.genTauJets)
         if dR2best < best_dr2:

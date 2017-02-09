@@ -209,10 +209,13 @@ lepWeightAna = cfg.Analyzer(
         {'cut':lambda x: abs(x.pdgId())==13,'dimensions':2,'filename':'MuonID_Z_RunBCD_prompt80X_7p65.root','histoname':"MC_NUM_HighPtIDPt20andIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pair_ne_ratio",'x':lambda x:x.pt(),'y':lambda x: abs(x.eta()),'tag':'sfWV'},
         {'cut':lambda x: abs(x.pdgId())==13,'dimensions':2,'filename':'MuonIso_Z_RunBCD_prompt80X_7p65.root','histoname':"MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio",'x':lambda x:x.pt(),'y':lambda x: abs(x.eta()),'tag':'sfWV'},
         {'cut':lambda x: abs(x.pdgId())==13,'dimensions':2,'filename':'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.root','histoname':"Mu50_OR_TkMu50_PtEtaBins_Run274954_to_276097/efficienciesDATA/pt_abseta_DATA",'x':lambda x:x.pt(),'y':lambda x: abs(x.eta()),'tag':'sfHLT'},
+        {'cut':lambda x: abs(x.pdgId())==13,'dimensions':2,'filename':'myTriggerScaleFactors.root','histoname':"MU_MC",'x':lambda x:x.pt(),'y':lambda x: (x.eta()),'tag':'eff_HLT_MC'},
+        {'cut':lambda x: abs(x.pdgId())==13,'dimensions':2,'filename':'myTriggerScaleFactors.root','histoname':"MU_DATA",'x':lambda x:x.pt(),'y':lambda x: (x.eta()),'tag':'eff_HLT_DATA'},
+        {'cut':lambda x: abs(x.pdgId())==11,'dimensions':2,'filename':'myTriggerScaleFactors.root','histoname':"ELE_MC",'x':lambda x:x.pt(),'y':lambda x: (x.eta()),'tag':'eff_HLT_MC'},
+        {'cut':lambda x: abs(x.pdgId())==11,'dimensions':2,'filename':'myTriggerScaleFactors.root','histoname':"ELE_DATA",'x':lambda x:x.pt(),'y':lambda x: (x.eta()),'tag':'eff_HLT_DATA'},
         #Electrons flat from Sam
         {'cut':lambda x: abs(x.pdgId())==11 and x.isEB(),'filename':'None','f':lambda x:0.961,'tag':'sfWV'},
         {'cut':lambda x: abs(x.pdgId())==11 and x.isEE(),'filename':'None','f':lambda x:0.965,'tag':'sfWV'},
-        {'cut':lambda x: abs(x.pdgId())==11,'dimensions':2,'filename':'myTriggerScaleFactors.root','histoname':"EleTrigger",'x':lambda x:x.pt(),'y':lambda x: abs(x.eta()),'tag':'sfHLT'}
         ]
 )
 
@@ -374,8 +377,10 @@ metWeightAna = cfg.Analyzer(
     collection = "LNuJJ",
     weights = [
         #Trigger privately calculated different for electrons and muons
-        {'cut':lambda x: abs(x.leg1.leg1.pdgId())==13,'dimensions':1,'filename':'myTriggerScaleFactors.root','histoname':"METMu",'x':lambda x:x.leg1.leg2.pt(),'tag':'sfHLTMET'},
-        {'cut':lambda x: abs(x.leg1.leg1.pdgId())==11,'dimensions':1,'filename':'myTriggerScaleFactors.root','histoname':"METEle",'x':lambda x:x.leg1.leg2.pt(),'tag':'sfHLTMET'},
+        {'cut':lambda x: abs(x.leg1.leg1.pdgId())==11,'dimensions':1,'filename':'myTriggerScaleFactors.root','histoname':"MET_ELE_MC",'x':lambda x:x.leg1.leg2.pt(),'tag':'eff_HLTMET_MC'},
+        {'cut':lambda x: abs(x.leg1.leg1.pdgId())==11,'dimensions':1,'filename':'myTriggerScaleFactors.root','histoname':"MET_ELE_DATA",'x':lambda x:x.leg1.leg2.pt(),'tag':'eff_HLTMET_DATA'},
+        {'cut':lambda x: abs(x.leg1.leg1.pdgId())==13,'dimensions':1,'filename':'myTriggerScaleFactors.root','histoname':"MET_MU_MC",'x':lambda x:x.leg1.leg2.pt(),'tag':'eff_HLTMET_MC'},
+        {'cut':lambda x: abs(x.leg1.leg1.pdgId())==13,'dimensions':1,'filename':'myTriggerScaleFactors.root','histoname':"MET_MU_DATA",'x':lambda x:x.leg1.leg2.pt(),'tag':'eff_HLTMET_DATA'},
         ]
 )
 

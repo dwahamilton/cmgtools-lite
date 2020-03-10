@@ -26,7 +26,13 @@ parser.add_option("-g","--genVars",dest="genVars",help="variable for gen",defaul
 sampleTypes=options.samples.split(',')
 dataPlotters=[]
 
-for filename in os.listdir(args[0]):
+filelist=[]
+if args[0]=='ntuples':
+  filelist=[g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+  filelist=os.listdir(args[0])
+
+for filename in filelist:
     for sampleType in sampleTypes:
         if filename.find(sampleType)!=-1:
             fnameParts=filename.split('.')
@@ -87,12 +93,12 @@ for bin in range(1,superHX.GetNbinsX()+1):
     resyHisto.SetBinContent(bin,tmp.GetRMS())
     resyHisto.SetBinError(bin,tmp.GetRMSError())
 
-        
-        
+
+
 scalexHisto.Write()
 scaleyHisto.Write()
 resxHisto.Write()
 resyHisto.Write()
 superHX.Write("dataX")
 superHY.Write("dataY")
-f.Close()    
+f.Close()

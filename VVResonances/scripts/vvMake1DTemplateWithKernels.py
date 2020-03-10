@@ -28,7 +28,7 @@ parser.add_option("-X","--maxx",dest="maxx",type=float,help="conditional bins sp
 
 
 def mirror(histo,histoNominal,name):
-    newHisto =copy.deepcopy(histoNominal) 
+    newHisto =copy.deepcopy(histoNominal)
     newHisto.SetName(name)
     intNominal=histoNominal.Integral()
     intUp = histo.Integral()
@@ -36,20 +36,20 @@ def mirror(histo,histoNominal,name):
         up=histo.GetBinContent(i)/intUp
         nominal=histoNominal.GetBinContent(i)/intNominal
         newHisto.SetBinContent(i,nominal*nominal/up)
-    return newHisto        
+    return newHisto
 
 def unequalScale(histo,name,alpha,power=1):
-    newHistoU =copy.deepcopy(histo) 
+    newHistoU =copy.deepcopy(histo)
     newHistoU.SetName(name+"Up")
-    newHistoD =copy.deepcopy(histo) 
+    newHistoD =copy.deepcopy(histo)
     newHistoD.SetName(name+"Down")
     for i in range(1,histo.GetNbinsX()+1):
         x= histo.GetXaxis().GetBinCenter(i)
         nominal=histo.GetBinContent(i)
-        factor = 1+alpha*pow(x,power) 
+        factor = 1+alpha*pow(x,power)
         newHistoU.SetBinContent(i,nominal*factor)
         newHistoD.SetBinContent(i,nominal/factor)
-    return newHistoU,newHistoD        
+    return newHistoU,newHistoD
 
 
 def smoothTailOLD(hist):
@@ -123,32 +123,38 @@ sampleTypes=options.samples.split(',')
 dataPlotters=[]
 dataPlottersNW=[]
 
-for filename in os.listdir(args[0]):
-    for sampleType in sampleTypes:
-        if filename.find(sampleType)!=-1:
-            fnameParts=filename.split('.')
-            fname=fnameParts[0]
-            ext=fnameParts[1]
-            if ext.find("root") ==-1:
-                continue
-            dataPlotters.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
-            dataPlotters[-1].setupFromFile(args[0]+'/'+fname+'.pck')
-            dataPlotters[-1].addCorrectionFactor('xsec','tree')
-            dataPlotters[-1].addCorrectionFactor('genWeight','tree')
-            dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-            dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
-            dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
-            dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+filelist=[]
+if args[0]=='ntuples':
+  filelist=[g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+  filelist=os.listdir(args[0])
 
-            dataPlotters[-1].filename=fname
+for filename in filelist:
+  for sampleType in sampleTypes:
+    if filename.find(sampleType)!=-1:
+      fnameParts=filename.split('.')
+      fname=fnameParts[0]
+      ext=fnameParts[1]
+      if ext.find('root')==-1:
+        continue
 
-            dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
-            dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
-            dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
-            dataPlottersNW[-1].addCorrectionFactor('lnujj_sf','branch')
-            dataPlottersNW[-1].addCorrectionFactor('lnujj_btagWeight','branch')
-            dataPlottersNW[-1].filename=fname
-            dataPlottersNW[-1].addCorrectionFactor('truth_genTop_weight','branch')
+      dataPlotters.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
+      dataPlotters[-1].setupFromFile(args[0]+'/'+fname+'.pck')
+      dataPlotters[-1].addCorrectionFactor('xsec','tree')
+      dataPlotters[-1].addCorrectionFactor('genWeight','tree')
+      dataPlotters[-1].addCorrectionFactor('puWeight','tree')
+      dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
+      dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
+      dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+      dataPlotters[-1].filename=fname
+
+      dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
+      dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
+      dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
+      dataPlottersNW[-1].addCorrectionFactor('lnujj_sf','branch')
+      dataPlottersNW[-1].addCorrectionFactor('lnujj_btagWeight','branch')
+      dataPlottersNW[-1].addCorrectionFactor('truth_genTop_weight','branch')
+      dataPlottersNW[-1].filename=fname
 
 data=MergedPlotter(dataPlotters)
 
@@ -248,9 +254,9 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     #nominal
     histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)
     if options.var != 'lnujj_gen_partialMass':
-        dataset=plotterNW.makeDataSet('lnujj_l1_pt,lnujj_gen_partialMass,lnujj_l2_partonFlavour,lnujj_l2_gen_pt,'+options.var,options.cut,-1)
+        dataset=plotterNW.makeDataSet('lnujj_l1_pt,lnujj_gen_partialMass,lnujj_l2_gen_pt,'+options.var,options.cut,-1)
     else:
-        dataset=plotterNW.makeDataSet('lnujj_l1_pt,lnujj_l2_partonFlavour,lnujj_l2_gen_pt,'+options.var,options.cut,-1)
+        dataset=plotterNW.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+options.var,options.cut,-1)
     datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'lnujj_l2_gen_pt',scale,res,histTMP);
     if histTMP.Integral()>0:
         histTMP.Scale(histI.Integral()/histTMP.Integral())
@@ -357,7 +363,3 @@ histogram_res_down.Write()
 #quarkGluonDown.Write("qgDwn")
 
 f.Close()
-
-
-
-

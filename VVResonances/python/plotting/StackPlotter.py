@@ -1,5 +1,6 @@
 import ROOT
 import math
+import pdb
 from TreePlotter import TreePlotter
 
 
@@ -61,7 +62,7 @@ class StackPlotter(object):
 #        canvas.SetTickx(1)
 #        canvas.SetTicky(1)
 #        canvas.SetLeftMargin(0.15)
-        canvas.SetRightMargin(0.05)
+#        canvas.SetRightMargin(0.05)
 #        canvas.SetTopMargin(0.05)
 #        canvas.SetBottomMargin(0.15)
 #        canvas.SetFrameFillStyle(0)
@@ -187,7 +188,11 @@ class StackPlotter(object):
         print"---------------------------"
         print "Signal = %f" %(signal)
         print "Bkg    = %f" %(background)
-        if data is not None:
+        if background==0:
+	    print "S/sqrt(B) = %f" %(signal)
+	else:
+	    print "S/sqrt(B) = %f" %(signal/math.sqrt(background))
+	if data is not None:
             print "Observed = %f"%(data.Integral())
             integral = data.IntegralAndError(1,data.GetNbinsX(),error)
             if background>0.0:
@@ -197,6 +202,9 @@ class StackPlotter(object):
         plot={'canvas':canvas,'stack':stack,'legend':legend,'data':data,'dataG':dataG}
         canvas.RedrawAxis()
         canvas.Update()
+
+        # Save canvas
+	#canvas.SaveAs("test.root")
 
 
         return plot

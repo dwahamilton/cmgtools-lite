@@ -943,7 +943,12 @@ class Fitter(object):
         self.frame.Draw()
         self.c.SaveAs(filename)
         return self.frame.chiSquare()
-        
+    
+    def fetchHistogram(self,model,histo,var,nbins,xmin,xmax):
+        pdf=self.w.pdf(model)
+	h=pdf.createHistogram(histo,self.w.var(var),ROOT.RooFit.Binning(nbins,xmin,xmax))
+
+	return h
         
                                 
 

@@ -10,11 +10,10 @@ from math import log
 import os, sys, re, optparse,pickle,shutil,json
 
 def returnString(func):
-    st='0'
-    for i in range(0,func.GetNpar()):
-        st=st+"+("+str(func.GetParameter(i))+")"+("*MH"*i)
-    return st    
-
+  st='0'
+  for i in range(0,func.GetNpar()):
+    st=st+"+("+str(func.GetParameter(i))+")"+("*MH"*i)
+  return st
 
 parser = optparse.OptionParser()
 parser.add_option("-s","--sample",dest="sample",default='',help="Type of sample")
@@ -27,60 +26,73 @@ parser.add_option("-f","--function",dest="function",help="interpolating function
 parser.add_option("-b","--BR",dest="BR",type=float, help="branching ratio",default=1)
 parser.add_option("-x","--minMass",dest="minMass",type=float, help="minimumMass",default=0.0)
 
-(options,args) = parser.parse_args()
-#define output dictionary
-samples={}
+(options,args)=parser.parse_args()
 
 yieldgraph=ROOT.TGraphErrors()
 
-for filename in os.listdir(args[0]):
-    if not (filename.find(options.sample)!=-1):
-        continue
+#define output dictionary
+plotters={}
 
-#found sample. get the mass
+sampleTypes=options.sample.split(',')
+
+filelist=[]
+if args[0]=='ntuples':
+  filelist=[g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+  filelist=os.listdir(args[0])
+
+for filename in filelist:
+  for sampleType in sampleTypes:
+    if not (filename.find(sampleType)!=-1):
+      continue
+
+    # Get masses from samples
     fnameParts=filename.split('.')
     fname=fnameParts[0]
     ext=fnameParts[1]
     if ext.find("root") ==-1:
-        continue
-        
+      continue
 
-    mass = float(fname.split('_')[-1])
+    mass=float(fname.split('_')[-1])
+    if not mass in plotters.keys():
+      plotters[mass]=[]
 
-    if mass<options.minMass:
-        continue
+    plotters[mass].append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
+    plotters[mass][-1].setupFromFile(args[0]+'/'+fname+'.pck')
+    plotters[mass][-1].addCorrectionFactor('xsec','tree')
+    plotters[mass][-1].addCorrectionFactor('genWeight','tree')
+    plotters[mass][-1].addCorrectionFactor('puWeight','tree')
+    plotters[mass][-1].filename=fname
 
+    print 'found',filename,'mass',str(mass)
 
-    samples[mass] = fname
-
-    print 'found',filename,'mass',str(mass) 
-
-
-#Now we have the samples: Sort the masses and run the fits
+# Sort the masses and run the fits
 N=0
-for mass in sorted(samples.keys()):
+for mass in sorted(plotters.keys()):
+  print 'fitting',str(mass)
 
-    print 'fitting',str(mass) 
-    plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
-    plotter.setupFromFile(args[0]+'/'+samples[mass]+'.pck')
-    plotter.addCorrectionFactor('genWeight','tree')
-    plotter.addCorrectionFactor('xsec','tree')
-    plotter.addCorrectionFactor('puWeight','tree')
-    histo = plotter.drawTH1(options.mvv,options.cut,"1",500,options.min,options.max)
-    err=ROOT.Double(0)
-    integral=histo.IntegralAndError(1,histo.GetNbinsX(),err) 
+  # Check if plotter contains samples for all Run 2 years
+  if len(plotters[mass])!=(1,3)[args[0]=='ntuples'] and len(plotters[mass])!=(1,2)[args[0]=='ntuples']:
+    continue
 
-    yieldgraph.SetPoint(N,mass,integral*options.BR)
-    yieldgraph.SetPointError(N,0.0,err*options.BR)
-    N=N+1
+  # Get the histo from MC
+  plotter=MergedPlotter(plotters[mass])
+  histo=plotter.drawTH1(options.mvv,options.cut,"1",1000,0,8000)
 
+  # Get the yield and its uncertainty
+  err=ROOT.Double(0)
+  integral=histo.IntegralAndError(1,histo.GetNbinsX(),err)
+  print integral, err
 
+  # Add them to the graph
+  yieldgraph.SetPoint(N,mass,integral*options.BR)
+  yieldgraph.SetPointError(N,0.0,err*options.BR)
 
+  N=N+1
 
-
-func = ROOT.TF1("func",options.function,0,13000)
+# Run the fit and store the parameterization
+func=ROOT.TF1("func",options.function,0,13000)
 yieldgraph.Fit(func)
-
 
 parameterization={'yield':returnString(func)}
 f=open(options.output+".json","w")
@@ -101,4 +113,3 @@ c.SaveAs("debug_"+options.output+".png")
 #F.cd()
 #yieldgraph.Write("yield")
 #F.Close()
-

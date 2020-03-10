@@ -971,11 +971,11 @@ class RooPlotter(object):
         self.stack.Draw("A,HIST,SAME")
 
         ## hardcoded axis customization
-        if var=="MLNuJ":
-            self.frame.GetXaxis().SetRangeUser(800,4500)
-            self.frame.SetYTitle("Events / 25 GeV")
-            if log:
-                self.frame.GetYaxis().SetRangeUser(0.3,5e+3) #2e+4)
+        #if var=="MLNuJ":
+            #self.frame.GetXaxis().SetRangeUser(800,4500)
+            #self.frame.SetYTitle("Events / 25 GeV")
+            #if log:
+                #self.frame.GetYaxis().SetRangeUser(0.3,5e+3) #2e+4)
         if var=="MJ":
             self.frame.SetYTitle("Events / 2 GeV")
             if not log:
@@ -1057,10 +1057,10 @@ class RooPlotter(object):
         self.line.SetLineColor(14)
 
         ## axis ranges (hardcoded for now)
-        if var=="MLNuJ":
-            self.frame2.GetXaxis().SetRangeUser(800,4500)
-            self.line.SetX1(800)
-            self.line.SetX2(4500)
+        #if var=="MLNuJ":
+            #self.frame2.GetXaxis().SetRangeUser(800,4500)
+            #self.line.SetX1(800)
+            #self.line.SetX2(4500)
         self.frame2.GetYaxis().SetRangeUser(0.5,1.5)
 
         ## draw everything

@@ -34,7 +34,13 @@ sampleTypes=options.samples.split(',')
 
 dataPlotters=[]
 
-for filename in os.listdir(args[0]):
+filelist=[]
+if args[0]=='ntuples':
+  filelist=[g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+  filelist=os.listdir(args[0])
+
+for filename in filelist:
     for sampleType in sampleTypes:
         if filename.find(sampleType)!=-1:
             fnameParts=filename.split('.')
@@ -58,9 +64,8 @@ if options.data==2:
 
 
 
-        
 
-    
+
 
 data=MergedPlotter(dataPlotters)
 
@@ -107,6 +112,3 @@ F=ROOT.TFile(options.output,"UPDATE")
 F.cd()
 histo.Write(options.name)
 F.Close()
-
-
-

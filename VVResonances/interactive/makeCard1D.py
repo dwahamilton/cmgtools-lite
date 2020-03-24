@@ -8,7 +8,7 @@ cmd='combineCards.py '
 
 import optparse
 parser = optparse.OptionParser()
-parser.add_option("-s","--signalType",dest="signalType",default='XWZ',help="XWW or XWZ")
+parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ")
 (options,args) = parser.parse_args()
 
 #lumi={'2016':35920,'2017_5':41530,'2018_2':59740}
@@ -22,8 +22,8 @@ bkg={('control','e','HP','2016'):13.499780,('W','e','HP','2016'):42.043208,('Z',
 #jets=['control']
 jets=['W','Z']
 #jets=['combined']
-leptons=['lep','e','mu']
-#leptons=['e','mu']
+#leptons=['lep','e','mu']
+leptons=['e','mu']
 #leptons=['e']
 #purities=['HP','LP','allP']
 purities=['HP','LP']
@@ -42,6 +42,9 @@ bkgs=['nonRes','resW']
 bkg_norm={('e','HP','nonRes'):0.5*5.33963e-01,('e','LP','nonRes'):-0.5*2.18383e-05,('mu','HP','nonRes'):0.5*2.83171e-01,('mu','LP','nonRes'):-0.5*5.02642e-02,('lep','HP','nonRes'):0.5*4.14795e-01,('lep','LP','nonRes'):-0.5*1.18997e-02,('e','HP','W','resW'):-0.5*5.36930e-02,('e','HP','Z','resW'):-0.5*4.97050e-01,('e','LP','W','resW'):0.5*8.93484e-01,('e','LP','Z','resW'):0.5*2.30752e-01,('mu','HP','W','resW'):0.5*3.19151e-02,('mu','HP','Z','resW'):-0.5*1.76774e-01,('mu','LP','W','resW'):-0.5*1.74678e-02,('mu','LP','Z','resW'):-0.5*2.39168e-01,('lep','HP','W','resW'):0.5*1.01419e-02,('lep','HP','Z','resW'):-0.5*4.82527e-01,('lep','LP','W','resW'):0.5*6.23588e-01,('lep','LP','Z','resW'):-0.5*2.02816e-02}
 bkg_normErr={('e','HP','nonRes'):0.5*2.25345e-01,('e','LP','nonRes'):0.5*1.83850e-01,('mu','HP','nonRes'):0.5*2.20691e-01,('mu','LP','nonRes'):0.5*1.73342e-01,('lep','HP','nonRes'):0.5*1.59389e-01,('lep','LP','nonRes'):0.5*1.29324e-01,('e','HP','W','resW'):0.5*7.04856e-01,('e','HP','Z','resW'):0.5*7.46460e-01,('e','LP','W','resW'):0.5*7.73198e-01,('e','LP','Z','resW'):0.5*8.96634e-01,('mu','HP','W','resW'):0.5*5.98715e-01,('mu','HP','Z','resW'):0.5*6.98166e-01,('mu','LP','W','resW'):0.5*8.92260e-01,('mu','LP','Z','resW'):0.5*8.86146e-01,('lep','HP','W','resW'):0.5*5.17115e-01,('lep','HP','Z','resW'):0.5*6.12463e-01,('lep','LP','W','resW'):0.5*7.08912e-01,('lep','LP','Z','resW'):0.5*8.32015e-01}
 
+HPunc=0.14
+LPunc=0.33
+
 for jet in jets:
   for lep in leptons:
     for pur in purities:
@@ -52,10 +55,10 @@ for jet in jets:
       #category='combined_'+signalYear[year]
       #card=DataCardMaker('VBF_Radion_'+lep+'_'+pur+'_'+jet+'_'+year,'NP','13TeV',lumi[year],'nob')
 
-      card.addMVVSignalParametricShape("XWZ","MLNuJ","LNuJJ_Wprime_MVV_"+sigCategory+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_lepton':1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
+      card.addMVVSignalParametricShape("XWW","MLNuJ","LNuJJ_Radion_MVV_"+sigCategory+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_lepton':1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
 
-      card.addMVVSignalParametricShape("XWZ","MLNuJ","LNuJJ_Wprime_MVV_"+sigCategory+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_lepton':1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
-      card.addParametricYield("XWZ",0,"LNuJJ_Wprime_"+sigCategory+"_yield.json",1,1.0)
+      card.addMVVSignalParametricShape("XWZ","MLNuJ","LNuJJ_Radion_MVV_"+sigCategory+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_lepton':1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
+      card.addParametricYield("XWZ",0,"LNuJJ_Radion_"+sigCategory+"_yield.json",1,1.0)
 
       #Background
       #card.addMVVBackgroundShapeQCD("bkg","MLNuJ",False,"",{})
@@ -79,14 +82,15 @@ for jet in jets:
       #card.importBinnedData("LNuJJ_control_combined.root","data",["MLNuJ"])
 
       #Scale and resolution uncertainties
-      card.addSystematic("CMS_lumi","lnN",{'XWZ':1.026})
-      card.addSystematic("CMS_lumi","lnN",{'bkg':1.99})
+      card.addSystematic("CMS_lumi","lnN",{'XWW':1.018,'XWZ':1.018,'XWH':1.018})
+      card.addSystematic("CMS_lumi","lnN",{'nonRes':1.99,'resW':1.99})
 
       card.addSystematic("CMS_scale_j","param",[0.0,0.02])
       card.addSystematic("CMS_res_j","param",[0.0,0.05])
       card.addSystematic("CMS_scale_MET","param",[0.0,0.02])
       card.addSystematic("CMS_res_MET","param",[0.0,0.01])
 
+      # Scale uncertainties for backgrounds
       for bkg in bkgs:
         card.addSystematic("CMS_LNuJ_"+bkg+"_"+lep+"_"+pur+"_"+jet+"_PT","param",[0.0,0.333])
         if bkg=='nonRes':
@@ -96,17 +100,24 @@ for jet in jets:
         elif bkg=='resW' and jet=='control':
           card.addSystematic("CMS_LNuJ_"+bkg+"_"+lep+"_"+pur+"_"+jet+"_norm","lnN",{bkg:1.5})
 
+      # Scale uncertainty for nob category
       if jet!='control':
         card.addSystematic("CMS_LNuJ_resW_bToNob_norm","lnN",{"resW":1.1})
 
-      #pruned mass scale
-      #card.addSystematic("CMS_scale_j","param",[0.0,0.02])
-      #card.addSystematic("CMS_res_j","param",[0.0,0.05])
+      # Purity scale uncertainties
+      if pur=='HP':
+        card.addSystematic("CMS_VV_LNuJ_Vtag_eff","lnN",{'XWW':1+HPunc,'XWZ':1+HPunc,'XWH':1+HPunc})
+      if pur=='LP':
+        card.addSystematic("CMS_VV_LNuJ_Vtag_eff","lnN",{'XWW':1-LPunc,'XWZ':1-LPunc,'XWH':1-LPunc})
 
-      #card.addSystematic("CMS_scale_MET","param",[0.0,0.02])
-      #card.addSystematic("CMS_res_MET","param",[0.0,0.01])
+      # Lepton efficiency
+      #card.addSystematic("CMS_eff_"+lep+,"lnN",{'XWW':1.05,'XWZ':1.05,'XWH':1.05})
 
-      card.addSystematic("CMS_scale_lepton","param",[0.0,0.004])
+      # PDF scale uncertainty
+      card.addSystematic("CMS_pdf","lnN",{'XWW':1.01,'XWZ':1.01,'XWH':1.01})
+
+      # btag efficiency
+      card.addSystematic("CMS_btag_fake","lnN",{'XWW':1+0.02,'XWZ':1+0.02,'XWH':1+0.02})
 
       card.makeCard()
 

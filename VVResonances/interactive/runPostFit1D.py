@@ -76,8 +76,11 @@ def cmsLabel(canvas):
 jets=['W','Z']
 #jets=['control']
 #jets=['combined']
-leptons=['e','mu','lep']
-purities=['HP','LP']
+#leptons=['e','mu','lep']
+#leptons=['e','mu']
+leptons=['lep']
+#purities=['HP','LP']
+purities=['allP']
 bkgs=['nonRes','resW']
 #bkgs=['nonRes']
 #years=['2016','2017_5','2018_2']
@@ -95,7 +98,7 @@ for jet in jets:
   for lep in leptons:
     for pur in purities:
       channel='_'.join([lep,pur,jet])
-      filename='datacard_final__VBF_XWW_'+channel+'_b_.root'
+      filename='datacard_final__VBF_XWW_resWCombined_'+channel+'_b_.root'
 
       plotter=RooPlotter(filename)
 
@@ -112,67 +115,10 @@ for jet in jets:
 
       #makeSignalParam(channel,"1000,1500,2000,2500,3000,3500,4000,4500",'MH','M_{X}')
 
-      #massPlot(1500,channel)
-      #massPlot(3000,channel)
-      #massPlot(2500,channel)
-      #yieldPlot(channel)
-      #pdb.set_trace()
-
       plotter.prefit()
-      plotter.drawBinned("MLNuJ","m_{WV} (GeV)","","_VBF_XWW_"+channel+"_b_",[0,0],options.doUncBand,1,"")
-      #plotter.drawBinned("MLNuJ","m_{WV} (GeV)","","_VBF_XWW_"+channel+"_b_",[0,0],options.doUncBand) # Linear
+      plotter.drawBinned("MLNuJ","m_{WV} (GeV)","","_VBF_XWW_resWCombined_"+channel+"_b_",[0,0],options.doUncBand,1,"")
+      saveCanvas(plotter.canvas,directory+"/postFitMVV_XWW_resWCombined_"+s+"_"+channel+"_b")
+      #plotter.drawBinned("MLNuJ","m_{WV} (GeV)","","_VBF_XWW_resWCombined_"+channel+"_b_",[0,0],options.doUncBand) # Linear
+      #saveCanvas(plotter.canvas,directory+"/postFitMVV_XWW_resWCombined_"+s+"_"+channel+"_lin_b")
       cmsLabel(plotter.canvas)
-      saveCanvas(plotter.canvas,directory+"/postFitMVV_"+s+"_"+channel+"_b")
       pdb.set_trace()
-
-'''
-for toy in xrange(0,10):
-  filename='datacard_final_nob_VBF_Radion_combined_2016_toy'+str(toy)+'__.root'
-
-  plotter=RooPlotter(filename)
-
-  if options.fixR is not None:
-    plotter.fix("r",options.fixR)
-
-
-  if s=='XWW':
-    plotter.addContribution("XWW",True,"X #rightarrow WW",3,1,ROOT.kOrange+10,0,ROOT.kWhite)
-  elif s=='XWZ':
-    plotter.addContribution("XWZ",True,"X #rightarrow WZ",3,1,ROOT.kMagenta,0,ROOT.kWhite)
-  plotter.addContribution("bkg",False,"bkg",1,1,ROOT.TColor.GetColor("#0F5500"),1001,ROOT.TColor.GetColor("#60B037")) #4CB319"))
-
-  #massPlot(1500,channel)
-  #massPlot(3000,channel)
-  #massPlot(2500,channel)
-  #yieldPlot(channel)
-  #pdb.set_trace()
-
-  plotter.prefit()
-  #pdb.set_trace()
-  plotter.drawBinned("MLNuJ","m_{WV} (GeV)","","nob_VBF_Radion_combined_2016_toy"+str(toy)+"__",[0,0],options.doUncBand,1,"")
-  #plotter.drawBinned("MLNuJ","m_{WV} (GeV)","","nob_VBF_Radion_"+channel+"_NP_13TeV",[0,0],options.doUncBand) # Linear
-  cmsLabel(plotter.canvas)
-  saveCanvas(plotter.canvas,directory+"/postFitMVV_"+s+"_toy"+str(toy))
- '''
-
-#''' ## for paper
-#'''
-
-'''
-plotter2.drawBinned("MLNuJ","m_{WV} (GeV)",label,"_13TeV",[0,10000],options.doUncBand,c!='vbf',"")
-cmsLabel(plotter2.canvas)
-saveCanvas(plotter2.canvas,directory+"/postFitMVVBlind_"+s+"_13TeV")
-#'''
-
-'''
-plotter2.drawBinned("MLNuJ","m_{WV} (GeV)",label,"_13TeV",[0,0],options.doUncBand,0,"MJ:sig:66:86")
-cmsLabel(plotter2.canvas)
-saveCanvas(plotter2.canvas,directory+"/postFitMVVW_"+s+"_13TeV")
-
-plotter2.frame.GetXaxis().SetRangeUser(1000.,2000.)
-plotter2.frame.GetYaxis().SetRangeUser(0.,1.1*(plotter2.frame.getHist("datapoints").GetY()[9]+plotter2.frame.getHist("datapoints").GetEYhigh()[9]))
-plotter2.frame2.GetXaxis().SetRangeUser(1000.,2000.)
-plotter2.line.SetX1(1000.)
-plotter2.line.SetX2(2000.)
-saveCanvas(plotter2.canvas,directory+"/postFitMVVWZoom_"+s+"_13TeV")
-#'''

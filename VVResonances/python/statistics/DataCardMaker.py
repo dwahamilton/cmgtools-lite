@@ -4,16 +4,17 @@ import json
 
 
 class DataCardMaker:
-    def __init__(self,finalstate,category,period,luminosity=1.0,physics="LJ"):
+    def __init__(self,finalstate,category,period,luminosity=1.0,physics="LJ",cardDir=""):
         self.physics=physics
         self.finalstate=finalstate
         self.category=category
         self.period=period
+        self.cardDir=cardDir
         self.contributions=[]
         self.systematics=[]
 
         self.tag=self.physics+"_"+finalstate+"_"+category+"_"+period
-        self.rootFile = ROOT.TFile("datacardInputs_"+self.tag+".root","RECREATE")
+        self.rootFile=ROOT.TFile(self.cardDir+"datacardInputs_"+self.tag+".root","RECREATE")
         self.rootFile.cd()
         self.w=ROOT.RooWorkspace("w","w")
         self.luminosity=luminosity
@@ -1005,7 +1006,7 @@ class DataCardMaker:
 
     def makeCard(self):
 
-        f = open("datacard_"+self.tag+'.txt','w')
+        f = open(self.cardDir+"datacard_"+self.tag+'.txt','w')
         f.write('imax 1\n')
         f.write('jmax {n}\n'.format(n=len(self.contributions)-1))
         f.write('kmax *\n')

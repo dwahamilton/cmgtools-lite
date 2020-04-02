@@ -154,7 +154,7 @@ for category in ['nob']:
 
             card.addSystematic("CMS_VV_LNuJ_resW_PT_"+resWTag,"param",[0.0,0.333])
             card.addSystematic("CMS_VV_LNuJ_resW_OPT_"+resWTag,"param",[0.0,0.333])
-
+b
             if lepton=='e':
                 card.addSystematic("CMS_scale_e","param",[0.0,0.005])
             elif lepton=='mu':
